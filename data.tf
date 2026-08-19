@@ -41,3 +41,7 @@ data "aws_ssm_parameter" "backend_alb_listener_arn"{
 data "aws_ssm_parameter" "frontend_alb_listener_arn"{
     name = "/${var.project_name}/${var.environment}/frontend_alb_listener_arn"
 }
+
+data "aws_ssm_parameter" "catalogue_sg_id"{
+    name = "/${var.project_name}/${var.environment}/catalogue_sg_id"
+}
