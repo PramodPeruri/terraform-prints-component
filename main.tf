@@ -6,7 +6,7 @@ resource "aws_instance" "main" {
     tags = merge (
         local.common_tags,
         {
-            Name = "${local.common_name_suffix}-${var.component}"
+            Name = "${local.common_name_suffix}-${var.components}"
         }
     )
 
@@ -32,7 +32,7 @@ resource "terraform_data" "main" {
   provisioner "remote-exec" {
     inline = [
         "chmod +x /tmp/bootstrap.sh",
-        "sudo sh /tmp/bootstrap.sh ${var.component} ${var.environment}"
+        "sudo sh /tmp/bootstrap.sh ${var.components} ${var.environment}"
     ]
   }
 }
@@ -44,19 +44,19 @@ resource "aws_ec2_instance_state" "main" {
 }
 
 resource "aws_ami_from_instance" "main" {
-  name = "${local.common_name_suffix}-${var.component}-ami"
+  name = "${local.common_name_suffix}-${var.components}-ami"
   source_instance_id = aws_instance.main.id
   depends_on = [aws_ec2_instance_state.main]
   tags = merge (
         local.common_tags,
         {
-            Name = "${local.common_name_suffix}-${var.component}-ami" # roboshop-dev-mongodb
+            Name = "${local.common_name_suffix}-${var.components}-ami" # roboshop-dev-mongodb
         }
   )
 }
 
 resource "aws_lb_target_group" "main" {
-  name     = "${local.common_name_suffix}-${var.component}"
+  name     = "${local.common_name_suffix}-${var.components}"
   port     = local.tg_port # if frontend port is 80, otherwise port is 8080
   protocol = "HTTP"
   vpc_id   = local.vpc_id
@@ -75,7 +75,7 @@ resource "aws_lb_target_group" "main" {
 }
 
 resource "aws_launch_template" "main" {
-   name = "${local.common_name_suffix}-${var.component}"
+   name = "${local.common_name_suffix}-${var.components}"
    image_id = aws_ami_from_instance.main.id
 
    instance_initiated_shutdown_behavior = "terminate"
@@ -91,7 +91,7 @@ resource "aws_launch_template" "main" {
      tags = merge (
         local.common_tags,
         {
-            Name = "${local.common_name_suffix}-${var.component}"
+            Name = "${local.common_name_suffix}-${var.components}"
         }
     )
    }
@@ -102,7 +102,7 @@ resource "aws_launch_template" "main" {
      tags = merge (
         local.common_tags,
         {
-            Name = "${local.common_name_suffix}-${var.component}"
+            Name = "${local.common_name_suffix}-${var.components}"
         }
     )
    }
@@ -111,14 +111,14 @@ resource "aws_launch_template" "main" {
   tags = merge(
       local.common_tags,
       {
-        Name = "${local.common_name_suffix}-${var.component}"
+        Name = "${local.common_name_suffix}-${var.components}"
       }
   )
 
 }
 
 resource "aws_autoscaling_group" "main" {
-  name                      = "${local.common_name_suffix}-${var.component}"
+  name                      = "${local.common_name_suffix}-${var.components}"
   max_size                  = 10
   min_size                  = 1
   health_check_grace_period = 100
@@ -144,7 +144,7 @@ resource "aws_autoscaling_group" "main" {
     for_each = merge (
         local.common_tags,
         {
-            Name = "${local.common_name_suffix}-${var.component}"
+            Name = "${local.common_name_suffix}-${var.components}"
         }
       
     )
@@ -162,7 +162,7 @@ timeouts {
 
 resource "aws_autoscaling_policy" "main" {
   autoscaling_group_name = aws_autoscaling_group.main.name
-  name                   = "${local.common_name_suffix}-${var.component}"
+  name                   = "${local.common_name_suffix}-${var.components}"
   policy_type            = "TargetTrackingScaling"
 
   target_tracking_configuration {

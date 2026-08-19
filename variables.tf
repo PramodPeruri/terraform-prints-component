@@ -20,7 +20,7 @@ variable "domain_name" {
 
 }
 
-variable "component" {
+variable "components" {
 
 }
 
